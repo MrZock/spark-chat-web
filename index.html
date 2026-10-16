@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPARK Chat</title>
+<meta name="description" content="SPARK Chat – Freunde, Gruppen, Bilder, Sprachnachrichten und Sprachanrufe. Ende-zu-Ende-verschlüsselt, kostenlos, ohne Werbung. Im Browser, als Android-App, auf dem iPhone und im SPARK-Launcher.">
+<meta name="theme-color" content="#05060b">
+<meta property="og:title" content="SPARK Chat">
+<meta property="og:description" content="Freunde, Gruppen und Sprachanrufe – Ende-zu-Ende-verschlüsselt.">
+<meta property="og:image" content="https://mrzock.github.io/spark-chat-web/assets/cover.jpg">
+<link rel="icon" type="image/png" href="assets/icon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<style>
+  :root {
+    --bg: #05060b; --glass: rgba(14, 17, 28, .72); --line: rgba(120, 200, 255, .14); --text: #eef2fb; --dim: #a3abc0; --faint: #5f6880;
+    --cyan: #2ee6ff; --amber: #ffc93c; --orange: #ff6a1f; --violet: #8a5cff; --ok: #4ff0a0;
+    --f-head: Bahnschrift, "DIN Alternate", "Arial Narrow", "Segoe UI", system-ui, sans-serif; --f-body: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; --f-mono: "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+    --cut: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+    --cut-s: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; color: var(--text); font: 400 17px/1.6 var(--f-body); overflow-x: hidden;
+    background: radial-gradient(1000px 600px at 85% -10%, rgba(46, 230, 255, .16), transparent 62%), radial-gradient(800px 600px at -10% 40%, rgba(255, 106, 31, .11), transparent 60%), var(--bg); }
+  a { color: var(--cyan); }
+  .wrap { width: min(1140px, 100% - 36px); margin: 0 auto; }
+  .label { font: 500 12px var(--f-mono); letter-spacing: 2.5px; color: var(--cyan); text-transform: uppercase; }
+  .grid-bg { position: fixed; left: -60%; right: -60%; bottom: -20%; height: 50vh; z-index: -1; transform: perspective(460px) rotateX(64deg); transform-origin: bottom; opacity: .32;
+    background-image: linear-gradient(rgba(46, 230, 255, .3) 1px, transparent 1px), linear-gradient(90deg, rgba(46, 230, 255, .3) 1px, transparent 1px); background-size: 60px 60px;
+    mask-image: linear-gradient(to top, #000, transparent 80%); -webkit-mask-image: linear-gradient(to top, #000, transparent 80%); }
+  /* Navigation */
+  nav { position: sticky; top: 0; z-index: 10; backdrop-filter: blur(14px); background: rgba(5, 6, 11, .72); border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; height: 64px; gap: 24px; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 900 19px var(--f-head); letter-spacing: 5px; color: var(--text); text-decoration: none; }
+  .brand img { width: 30px; height: 30px; filter: drop-shadow(0 0 8px rgba(46, 230, 255, .8)); }
+  .brand span { color: var(--cyan); }
+  nav .links { display: flex; gap: 22px; margin-left: auto; }
+  nav .links a { color: var(--dim); text-decoration: none; font: 600 14px var(--f-head); letter-spacing: 2px; text-transform: uppercase; }
+  nav .links a:hover { color: var(--text); }
+  .btn { display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 26px; font: 700 15px var(--f-head); letter-spacing: 2.5px; text-transform: uppercase; text-decoration: none; color: #00161b; clip-path: var(--cut-s); background: linear-gradient(120deg, #9df6ff, var(--cyan)); transition: filter .15s, transform .15s; border: 0; cursor: pointer; }
+  .btn:hover { filter: brightness(1.08) drop-shadow(0 0 18px rgba(46, 230, 255, .6)); transform: translateY(-2px); }
+  .btn.alt { color: var(--text); background: rgba(46, 230, 255, .08); box-shadow: inset 0 0 0 1px rgba(46, 230, 255, .45); }
+  .btn.orange { color: #160900; background: linear-gradient(120deg, var(--amber), var(--orange) 70%); }
+  .btn.sm { height: 44px; padding: 0 18px; font-size: 13px; }
+  nav .btn { height: 40px; padding: 0 16px; font-size: 13px; }
+  /* Hero */
+  header { padding: 90px 0 70px; }
+  header .wrap { display: grid; grid-template-columns: 1.1fr .9fr; gap: 50px; align-items: center; }
+  h1 { margin: 14px 0 16px; font: 900 clamp(48px, 8vw, 92px)/.95 var(--f-head); letter-spacing: 8px; }
+  h1 span { color: var(--cyan); text-shadow: 0 0 34px rgba(46, 230, 255, .55); }
+  .lead { font-size: 20px; color: #cfd5e3; max-width: 560px; margin: 0 0 30px; }
+  .ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .facts { display: flex; gap: 26px; flex-wrap: wrap; margin-top: 30px; color: var(--dim); font: 500 13px var(--f-mono); letter-spacing: 1px; }
+  .facts b { color: var(--ok); }
+  /* Handy-Vorschau */
+  .phone { position: relative; width: 320px; margin: 0 auto; padding: 16px; border-radius: 38px; background: #0b0d14; box-shadow: 0 0 0 2px rgba(46, 230, 255, .25), 0 30px 80px rgba(0, 0, 0, .6), 0 0 80px rgba(46, 230, 255, .12); }
+  .screen { border-radius: 26px; overflow: hidden; background: #070910; height: 560px; display: flex; flex-direction: column; }
+  .screen .top { padding: 16px 16px 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--line); }
+  .screen .av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #a4ffc8, #2fd07a); display: grid; place-items: center; font: 700 15px var(--f-head); color: #05060b; }
+  .screen .nm { font: 700 15px var(--f-head); letter-spacing: 1px; } .screen .st { font-size: 12px; color: var(--ok); }
+  .msgs { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .b { max-width: 78%; padding: 8px 12px; font-size: 14px; border-radius: 14px; background: rgba(255, 255, 255, .07); animation: pop .5s both; }
+  .b.me { align-self: flex-end; background: linear-gradient(135deg, rgba(46, 230, 255, .3), rgba(46, 230, 255, .12)); }
+  .b small { display: block; font: 500 10px var(--f-mono); color: var(--faint); text-align: right; }
+  .b.me small { color: var(--cyan); }
+  .b.inv { background: linear-gradient(135deg, rgba(255, 201, 60, .2), rgba(255, 106, 31, .08)); box-shadow: inset 0 0 0 1px rgba(255, 150, 60, .5); }
+  .b.inv b { display: block; font: 700 15px var(--f-head); letter-spacing: 2px; color: var(--amber); }
+  .b .rx { display: inline-block; margin-top: 4px; padding: 0 6px; font-size: 12px; border-radius: 8px; background: #11141d; }
+  .b:nth-child(2) { animation-delay: .4s; } .b:nth-child(3) { animation-delay: .8s; } .b:nth-child(4) { animation-delay: 1.2s; } .b:nth-child(5) { animation-delay: 1.6s; }
+  @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.96); } }
+  .screen .compose { margin: 10px; height: 40px; border-radius: 12px; background: rgba(255, 255, 255, .05); color: var(--faint); font-size: 13px; display: flex; align-items: center; padding: 0 14px; }
+  /* Abschnitte */
+  section { padding: 70px 0; }
+  h2 { margin: 10px 0 30px; font: 900 clamp(30px, 4.5vw, 46px) var(--f-head); letter-spacing: 5px; }
+  h2 span { color: var(--cyan); }
+  .feats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .card { position: relative; padding: 22px; background: var(--glass); backdrop-filter: blur(10px); clip-path: var(--cut); box-shadow: inset 0 0 0 1px var(--line); }
+  .card .ico { font-size: 28px; margin-bottom: 8px; }
+  .card h3 { margin: 0 0 6px; font: 700 17px var(--f-head); letter-spacing: 2px; }
+  .card p { margin: 0; color: #c6ccda; font-size: 15px; }
+  .dl { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .dl .card { padding: 26px; }
+  .dl .card h3 { font-size: 22px; display: flex; align-items: center; gap: 10px; }
+  .dl .tag { font: 600 11px var(--f-mono); letter-spacing: 1.5px; padding: 2px 8px; color: #04140a; background: var(--ok); clip-path: var(--cut-s); }
+  .dl ol { margin: 12px 0 18px; padding-left: 22px; color: #c6ccda; font-size: 15px; }
+  .dl ol li { margin: 4px 0; }
+  .dl .note { color: var(--dim); font-size: 14px; margin: 10px 0 0; }
+  .ver { font: 500 12px var(--f-mono); color: var(--faint); margin-left: 6px; }
+  .safe { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .faq { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+  details { padding: 16px 20px; background: var(--glass); clip-path: var(--cut-s); box-shadow: inset 0 0 0 1px var(--line); }
+  summary { cursor: pointer; font: 700 16px var(--f-head); letter-spacing: 1px; }
+  details p { color: #c6ccda; font-size: 15px; margin: 10px 0 0; }
+  footer { padding: 40px 0 60px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  footer nav { position: static; background: none; border: 0; backdrop-filter: none; display: flex; gap: 18px; flex-wrap: wrap; }
+  footer a { color: var(--dim); text-decoration: none; } footer a:hover { color: var(--text); }
+  @media (max-width: 960px) { header .wrap { grid-template-columns: 1fr; } .feats { grid-template-columns: 1fr 1fr; } .dl, .safe, .faq { grid-template-columns: 1fr; } nav .links { display: none; } .phone { width: 290px; } .screen { height: 480px; } }
+  @media (max-width: 520px) { .feats { grid-template-columns: 1fr; } h1 { letter-spacing: 4px; } nav .btn { display: none; } }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<nav><div class="wrap">
+  <a class="brand" href="./"><img src="assets/icon.png" alt="">SPARK <span>CHAT</span></a>
+  <div class="links"><a href="#features">Features</a><a href="#download">Download</a><a href="#sicherheit">Sicherheit</a><a href="#faq">FAQ</a></div>
+  <a class="btn" href="https://mrzock.github.io/spark-chat/">Chat öffnen</a>
+</div></nav>
+
+<header><div class="wrap">
+  <div>
+    <span class="label">// Freunde · Gruppen · Sprachanrufe</span>
+    <h1>SPARK <span>CHAT</span></h1>
+    <p class="lead">Dein eigener Chat: Schreib mit Freunden, gründe Gruppen, schick Bilder und Sprachnachrichten, telefoniere – und lade sie mit einem Klick in dein BLACKOUT-Spiel ein. <b>Ende-zu-Ende-verschlüsselt.</b> Kostenlos, ohne Werbung.</p>
+    <div class="ctas">
+      <a class="btn" href="https://mrzock.github.io/spark-chat/">▶ Im Browser öffnen</a>
+      <a class="btn alt" href="#download">📲 App herunterladen</a>
+    </div>
+    <div class="facts"><span><b>✓</b> Browser & Handy</span><span><b>✓</b> Android-App</span><span><b>✓</b> iPhone</span><span><b>✓</b> Windows (SPARK)</span></div>
+  </div>
+  <div class="phone" aria-hidden="true"><div class="screen">
+    <div class="top"><div class="av">M</div><div><div class="nm">Max_99</div><div class="st">spielt BLACKOUT</div></div></div>
+    <div class="msgs">
+      <div class="b">Lust auf eine Runde? 🎮<small>18:02</small></div>
+      <div class="b me">Klar! Ich hoste gleich ⚡<small>18:03 ✓✓</small></div>
+      <div class="b inv"><b>▶ BEITRETEN</b>Max lädt dich ein · Raum K7QX</div>
+      <div class="b me">Bin drin 🔥<small>18:05 ✓✓</small><span class="rx">❤️</span></div>
+      <div class="b">🎤 Sprachnachricht · 0:12</div>
+    </div>
+    <div class="compose">Nachricht schreiben …</div>
+  </div></div>
+</div></header>
+
+<section id="features"><div class="wrap">
+  <span class="label">// Was SPARK Chat kann</span>
+  <h2>ALLES, WAS DU <span>BRAUCHST</span></h2>
+  <div class="feats">
+    <div class="card"><div class="ico">💬</div><h3>CHATS</h3><p>Privatchats mit Online-Status, „schreibt …“ und Zustellhaken ✓✓.</p></div>
+    <div class="card"><div class="ico">👥</div><h3>GRUPPEN</h3><p>Bis zu 32 Leute pro Gruppe – auch die sind verschlüsselt.</p></div>
+    <div class="card"><div class="ico">📞</div><h3>ANRUFE</h3><p>Sprachanrufe mit Lautsprecher-Knopf – auch im Schul-WLAN.</p></div>
+    <div class="card"><div class="ico">🎤</div><h3>SPRACHNACHRICHTEN</h3><p>Aufnehmen, schicken, fertig – bis zu 2 Minuten.</p></div>
+    <div class="card"><div class="ico">📷</div><h3>BILDER</h3><p>Fotos werden automatisch verkleinert, Standortdaten fallen weg.</p></div>
+    <div class="card"><div class="ico">😂</div><h3>REAKTIONEN</h3><p>👍 ❤️ 😂 😮 😢 🔥, Antworten mit Zitat, Bearbeiten und Löschen.</p></div>
+    <div class="card"><div class="ico">🎮</div><h3>BLACKOUT</h3><p>Raum-Code wird erkannt – ein Klick auf „Beitreten“ und dein Freund ist im Spiel.</p></div>
+    <div class="card"><div class="ico">🎨</div><h3>DEIN STIL</h3><p>Hell, Dunkel oder Schwarz, 8 Farben, Schriftgröße, Status und Spitznamen.</p></div>
+  </div>
+</div></section>
+
+<section id="download"><div class="wrap">
+  <span class="label">// Download</span>
+  <h2>HOL DIR <span>SPARK CHAT</span></h2>
+  <div class="dl">
+    <div class="card">
+      <h3>🌐 Browser & Handy <span class="tag">EMPFOHLEN</span></h3>
+      <p>Läuft sofort auf jedem Gerät – am Handy als App auf dem Home-Bildschirm, mit Push-Benachrichtigungen.</p>
+      <ol><li>Öffne <b>mrzock.github.io/spark-chat</b></li><li><b>iPhone (Safari):</b> Teilen → „Zum Home-Bildschirm“</li><li><b>Android (Chrome):</b> ⋮ → „App installieren“</li></ol>
+      <a class="btn sm" href="https://mrzock.github.io/spark-chat/">Chat öffnen</a>
+    </div>
+    <div class="card">
+      <h3>🤖 Android-App</h3>
+      <p>Als richtige App (APK) – direkt von hier, ohne Play Store.</p>
+      <ol><li>APK herunterladen und öffnen</li><li>Wenn Android fragt: „Installation aus dieser Quelle erlauben“</li><li>Installieren – fertig. Mikrofon-Zugriff beim ersten Anruf erlauben.</li></ol>
+      <a class="btn sm orange" id="apk" href="https://github.com/MrZock/spark-chat/releases/latest">⬇ APK herunterladen</a><span class="ver" id="apkver"></span>
+      <p class="note">Benachrichtigungen kommen, solange die App im Hintergrund läuft. Für Push bei geschlossener App: Web-App nutzen.</p>
+    </div>
+    <div class="card">
+      <h3>🍎 iPhone-Test-App</h3>
+      <p>Kostenlos als echte App testen – mit <b>Sideloadly</b> (Windows/Mac) und deiner Apple-ID.</p>
+      <ol><li>Auf dem PC <a href="https://sideloadly.io/">Sideloadly</a> und iTunes installieren</li><li><b>SPARK-Chat-iOS.ipa</b> herunterladen, iPhone per Kabel anschließen</li><li>IPA in Sideloadly ziehen, mit deiner Apple-ID starten (die Eingabe machst du nur dort)</li><li>Am iPhone: Einstellungen → Datenschutz → <b>Entwicklermodus</b> an, dann Allgemein → VPN & Geräteverwaltung → App vertrauen</li></ol>
+      <a class="btn sm alt" id="ipa" href="https://github.com/MrZock/spark-chat/releases/latest">⬇ IPA herunterladen</a><span class="ver" id="ipaver"></span>
+      <p class="note">Ohne kostenpflichtiges Apple-Entwicklerkonto läuft die Test-App 7 Tage und muss danach neu aufgespielt werden. Bequemer: Web-App auf dem Home-Bildschirm.</p>
+    </div>
+    <div class="card">
+      <h3>🖥 Windows</h3>
+      <p>Im <b>SPARK-Launcher</b> – mit Windows-Benachrichtigungen, Chat im Hintergrund und Einladungen direkt ins Spiel.</p>
+      <ol><li>SPARK herunterladen und installieren</li><li>In der Bibliothek <b>SPARK Chat</b> installieren</li><li>Optional: „Mit Windows starten“ unter ⚙</li></ol>
+      <a class="btn sm orange" href="https://mrzock.github.io/spark/#download">⚡ SPARK holen</a>
+    </div>
+  </div>
+</div></section>
+
+<section id="sicherheit"><div class="wrap">
+  <span class="label">// Sicherheit & Datenschutz</span>
+  <h2>DEINE NACHRICHTEN <span>GEHÖREN DIR</span></h2>
+  <div class="safe">
+    <div class="card"><div class="ico">🔒</div><h3>ENDE-ZU-ENDE</h3><p>Nachrichten, Bilder, Sprachnachrichten und Anrufe sind verschlüsselt (ECDH P-256 + AES-256-GCM). Nicht mal der Server kann mitlesen.</p></div>
+    <div class="card"><div class="ico">🔑</div><h3>PASSWORT BLEIBT BEI DIR</h3><p>Dein Passwort verlässt nie dein Gerät. Der Server bekommt nur einen daraus berechneten Schlüssel.</p></div>
+    <div class="card"><div class="ico">🧹</div><h3>WENIG DATEN</h3><p>Keine Werbung, kein Tracking, keine Cookies. Verläufe nur auf deinen Geräten. Konto jederzeit selbst löschen.</p></div>
+  </div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+  <span class="label">// Fragen</span>
+  <h2>F<span>A</span>Q</h2>
+  <div class="faq">
+    <details><summary>Kostet SPARK Chat etwas?</summary><p>Nein. SPARK Chat ist ein kostenloses Hobbyprojekt – ohne Werbung und ohne Bezahlfunktionen.</p></details>
+    <details><summary>Ab welchem Alter?</summary><p>Ab 16 Jahren. Die Regeln stehen in den <a href="https://mrzock.github.io/spark/nutzungsbedingungen.html">Nutzungsbedingungen</a>.</p></details>
+    <details><summary>Kann ich mein Konto auf mehreren Geräten nutzen?</summary><p>Ja – im Browser, in der App und im SPARK-Launcher mit demselben Konto. Chatverläufe bleiben auf dem jeweiligen Gerät.</p></details>
+    <details><summary>Ich habe mein Passwort vergessen.</summary><p>Weil dein Passwort dein Gerät nie verlässt, kann es niemand zurücksetzen. Du musst dann ein neues Konto erstellen.</p></details>
+    <details><summary>Was ist mit Push-Benachrichtigungen?</summary><p>In der Web-App kannst du sie unter ⚙ einschalten (freiwillig). Sie zeigen nur „Du hast eine neue Nachricht“ – ohne Absender und Inhalt.</p></details>
+    <details><summary>Jemand belästigt mich.</summary><p>Im Chat über ⋯ → <b>Melden</b> und <b>Blockieren</b>. Bei akuter Gefahr: Polizei 110. Hilfe für Jugendliche: Nummer gegen Kummer 116 111.</p></details>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <span>© <span id="yr">2026</span> MrZock · SPARK Chat ist ein Hobbyprojekt</span>
+  <nav><a href="https://mrzock.github.io/spark-chat/">Chat öffnen</a><a href="https://mrzock.github.io/spark/">SPARK</a><a href="https://mrzock.github.io/nachtwache/">BLACKOUT</a><a href="https://mrzock.github.io/spark/datenschutz.html#chat">Datenschutz</a><a href="https://mrzock.github.io/spark/nutzungsbedingungen.html">Nutzungsbedingungen</a><a href="https://mrzock.github.io/spark/datenschutz.html#kontakt">Kontakt</a><a href="https://github.com/MrZock/spark-chat">GitHub</a></nav>
+</div></footer>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+// Neueste App-Version von GitHub holen (Download-Knöpfe zeigen direkt auf die Dateien)
+fetch('https://api.github.com/repos/MrZock/spark-chat/releases/latest').then(r => r.ok ? r.json() : null).then(rel => {
+  if (!rel || !rel.assets) return;
+  const set = (id, re) => { const a = rel.assets.find(x => re.test(x.name)); if (a) { document.getElementById(id).href = a.browser_download_url; document.getElementById(id + 'ver').textContent = rel.name || rel.tag_name; } };
+  set('apk', /\.apk$/i); set('ipa', /\.ipa$/i);
+}).catch(() => {});
+</script>
+</body>
+</html>
